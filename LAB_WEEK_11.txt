@@ -1,0 +1,28 @@
+Hyun Jung - 00000088991
+
+1. When a user takes a picture, that picture is stored in a path based on the given
+URI. In which part of the code handles this? (Copy that part of the code as the
+answer)
+
+takePictureLauncher =
+ 	registerForActivityResult(ActivityResultContracts.TakePicture()) {
+ 		providerFileManager.insertImageToStore(photoInfo)
+ 	}
+
+2. In your FileInfo.kt, there are 5 attributes. On the first attribute, what does the URI
+refer to? And on the fourth attribute, what does relativePath refer to?
+
+URI (Attribute 1): URI ini merujuk pada Content URI sementara yang dihasilkan oleh FileProvider (contohnya: content://com.example.lab_week_11_b.camera/photos/img_12345.jpg). URI ini memberikan akses sementara kepada aplikasi kamera eksternal untuk menulis data gambar ke file privat yang telah disiapkan di penyimpanan aplikasi (Android/data/...).
+relativePath (Attribute 4): relativePath merujuk pada nama folder standar di mana file tersebut seharusnya dikategorikan di dalam penyimpanan publik (MediaStore), seperti folder "Pictures" atau "Movies". Nilai ini diambil dari Environment.DIRECTORY_PICTURES (melalui FileHelper.getPicturesFolder()) dan digunakan nantinya
+
+3. [Bonus] Explain the chronological order from when a user takes a picture until
+the file is stored in the MediaStore.
+
+Pengguna menekan tombol photo_button di MainActivity, yang memicu setOnClickListener.
+Fungsi checkStoragePermission dijalankan untuk memeriksa apakah izin penyimpanan telah diberikan.
+Jika izin tersedia, fungsi openImageCapture dipanggil, yang kemudian menjalankan providerFileManager.generatePhotoUri untuk membuat file sementara dan menghasilkan URI.
+takePictureLauncher.launch dieksekusi untuk membuka aplikasi kamera bawaan dengan membawa URI sebagai lokasi penyimpanan sementara.
+Setelah foto diambil, callback takePictureLauncher di MainActivity dijalankan.
+Di dalam callback, fungsi providerFileManager.insertImageToStore(photoInfo) dipanggil untuk memproses penyimpanan ke MediaStore.
+MediaContentHelper menyiapkan metadata (nama file, tipe MIME, path relatif) menggunakan generateImageContentValues.
+Fungsi insertToStore membuat entri file baru di MediaStore (contentResolver.insert) dan menyalin isi gambar dari URI sementara ke Galeri publik menggunakan IOUtils.copy.
